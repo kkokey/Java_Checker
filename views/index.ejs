@@ -1,0 +1,51 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<style>
+		div{
+			font-size: 10pt;
+			width: 650px;
+			border: solid 1px gray;
+			resize: both;
+    	overflow: auto;
+		}
+		div.import{
+			height: 80px;
+		}
+		div.method{
+			height: 380px;
+		}
+		div.commend{
+			height: 20px;
+		}
+		div.button{
+			border: 0px;
+			resize: none;
+		}
+	</style>
+</head>
+<body>
+	<span>- Import Part -</span>
+	<div id="import" class="import textarea first" contenteditable=true>
+		Write import paragraph
+	</div>
+	<span>- Method Part -</span>
+	<div id="method" class="method textarea first" contenteditable=true>
+		Write method source
+	</div>
+	<span>- Run Command -</span>
+	<div id="command" class="commend textarea first" contenteditable=true>
+		Write run command in main method.
+	</div>
+	<br/>
+	<span>Result:</span>
+	<span id="result"></span>
+	<div class="button">
+		<input type="button" id="analysis" value="Analysis"/>
+		<input type="button" id="sample" value="SetDefaultValue"/>
+	</div>
+
+	<script type="text/javascript" src="../js/jquery.js"></script>
+	<script type="text/javascript" src="../js/common.js"></script>
+</body>
+</html>
