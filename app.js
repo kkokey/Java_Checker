@@ -6,6 +6,29 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 var index = require('./js/index.js');
+//****** //
+// 함수 생성 구간
+// ******//
+
+const getDateString = {
+	yyyymmdd: () => {
+		var d = new Date();
+		return d.getFullYear() + '.' + d.getMonth() + '.' + d.getDate();
+	}
+}
+
+var ymd = getDateString.yyyymmdd();
+const dir = {
+	mkdir: (x) => {
+		fs.mkdir(
+			x, 
+			[0o777], 
+			function(rs){
+				console.log('Make folder :[' + ymd +']');
+				return rs;
+		});
+	}
+}
 
 var app = express();
 
@@ -22,13 +45,18 @@ app.use(cookieParser());
 app.use('/js', express.static(__dirname + '/js'));
 app.use('/', index);
 app.post('/file', function(req, res){
-  var name = '', source = req.body.source;
+	var importPart='', methodPart='';
+  var fileName = '', source = req.body.source;
+	importPart = source.split('|')[0];
+	methodPart = source.split('|')[1];
   const add = {
-    classHeader: (x) => { return 'public class Solution {\n' + x + '\n}'; }
+    classHeader: (x) => { return importPart + '\n' + 'public class Solution {\n' + x + '\n}'; }
   }
 
-  if(name === ''){
-    name = 'Solution.java';
+	dir.mkdir(ymd);
+
+  if(fileName === ''){
+    fileName = ymd + '/Solution.java';
   }
   if(source === ''){
     source = ''
@@ -62,23 +90,23 @@ app.post('/file', function(req, res){
     +'  totalTime();'
     +'}\n\n'
     +'public static long totalTime(){\n'
-  	+'	long startTime = System.currentTimeMillis();\n'
+  	+'	long startTime = System.nanoTime();\n'
     + req.body.runCommand
-  	+'	long endTime   = System.currentTimeMillis();\n'
+  	+'	long endTime   = System.nanoTime();\n'
   	+'	long totalTime = endTime - startTime;\n'
   	+'	System.out.println(totalTime);\n'
     +'\n'
     +'  return totalTime;\n'
   	+'}\n\n'
     +'\n'
-    + req.body.source;
+    + methodPart;
   }
 
   source = add.classHeader(source);
   source = source.split('\n').join(' ');
   source = source.split('\u00a0').join(' ');
 
-  var stream = fs.createWriteStream(name);
+  var stream = fs.createWriteStream(fileName);
   stream.once('open', function(fd) {
   	stream.write(source);
   	stream.end();
@@ -88,19 +116,19 @@ app.post('/file', function(req, res){
   var returnVal;
   var spawn = require('child_process').spawn;
   var opts = {stdio: 'inherit'} ;
-  var javac = spawn('javac', ['-cp', 'Solution.class', '/usr/local/Java_Checker/Solution.java'], opts);
+  var javac = spawn('javac', ['-cp', ymd + '/Solution.class', '/usr/local/Java_Checker/'+ ymd +'/Solution.java'], opts);
 
   javac.on('close', function(code) {
     const exec = require('child_process').exec;
-    exec('java Solution totalTime', (e, stdout, stderr)=> {
+   	exec('java Solution totalTime', {cwd: './'+ymd}, (e, stdout, stderr)=> {
+			process.chdir(ymd);
       if (e instanceof Error) {
-          console.error(e);
-          throw e;
+     	  console.error(e);
       }
       // console.log('stdout ', stdout);
       var result = stdout;
 
-      // console.log('stderr ', stderr);
+   	  // console.log('stderr ', stderr);
       res.render('file', {'result':result});
     });
   });
