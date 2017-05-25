@@ -19,7 +19,7 @@ function resetData(dom){
     $(dom).html('');
     $(dom).removeClass('first');
   }else{
-    $(dom).html('');
+    //$(dom).html('');
   }
 }
 
@@ -31,7 +31,7 @@ function getInputCommand(){
 function getInputSource(){
   var importSource = $('#import')[0].innerText;
   var methodSource = $('#method')[0].innerText;
-  return importSource + ' ' + methodSource;
+  return importSource + '|' + methodSource;
 }
 
 function analysis(){
@@ -52,7 +52,7 @@ function analysis(){
     success : function(data) {
         console.log("success!");
         data = data.split('\n').join('');
-        $('#result')[0].innerText = data + ' millisec';
+        $('#result')[0].innerText = data + ' (ns)';
     },
     complete : function() {
         console.log("complete!");
@@ -103,7 +103,7 @@ function setTestDefaultVal(){
 
   $('#method')[0].innerHTML = defaultValue[0].innerHTML.split(' ').join('&nbsp;');
 
-  $('#command')[0].innerHTML = 'reAlignString("String strData");';
+  $('#command')[0].innerHTML = 'reAlignString("To string data align test which this method ");';
 
 }
 
