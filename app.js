@@ -57,6 +57,7 @@ app.post('/file', function(req, res){
     classHeader: (x) => { return importPart + '\n' + 'public class Solution {\n' + x + '\n}'; }
   }
 
+	console.log(yymd);
 	dir.mkdir(yymd);
 
   if(fileName === ''){
@@ -123,9 +124,9 @@ app.post('/file', function(req, res){
   var javac = spawn('javac', ['-cp', yymd + '/Solution.class', '/usr/local/Java_Checker/'+ yymd +'/Solution.java'], opts);
 
   javac.on('close', function(code) {
+		console.log('close:'+yymd);
     const exec = require('child_process').exec;
    	exec('java Solution totalTime', {cwd: './'+yymd}, (e, stdout, stderr)=> {
-			process.chdir(yymd);
       if (e instanceof Error) {
      	  console.error(e);
       }
