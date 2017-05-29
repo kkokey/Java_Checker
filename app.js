@@ -6,30 +6,29 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 var index = require('./js/index.js');
-//****** //
-// 함수 생성 구간
-// ******//
 
-const getDateString = {
-	yyyymmdd: () => {
-		var d = new Date();
-		return d.getFullYear() + '.' + d.getMonth() + '.' + d.getDate();
-	}
-}
+//******************** //
+// Make Function Part
+// ********************//
 
-var ymd = getDateString.yyyymmdd();
+var d = new Date();
+var yymd = d.getFullYear() + '.' + d.getMonth() + '.' + d.getDate();
+
 const dir = {
 	mkdir: (x) => {
 		fs.mkdir(
 			x, 
-			[0o777], 
+			[0o777],		// What's mean this? 
 			function(rs){
-				console.log('Make folder :[' + ymd +']');
+				console.log('Make folder :[' + yymd +']');
 				return rs;
 		});
 	}
 }
 
+//******************** //
+// Setting express config & page path.
+// ********************//
 var app = express();
 
 // view engine setup
@@ -42,21 +41,26 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
+
+//******************** //
+// Setting url path link.
+// ********************//
 app.use('/js', express.static(__dirname + '/js'));
 app.use('/', index);
 app.post('/file', function(req, res){
 	var importPart='', methodPart='';
   var fileName = '', source = req.body.source;
+	yymd = d.getFullYear() + '.' + d.getMonth() + '.' + d.getDate();
 	importPart = source.split('|')[0];
 	methodPart = source.split('|')[1];
   const add = {
     classHeader: (x) => { return importPart + '\n' + 'public class Solution {\n' + x + '\n}'; }
   }
 
-	dir.mkdir(ymd);
+	dir.mkdir(yymd);
 
   if(fileName === ''){
-    fileName = ymd + '/Solution.java';
+    fileName = yymd + '/Solution.java';
   }
   if(source === ''){
     source = ''
@@ -116,12 +120,12 @@ app.post('/file', function(req, res){
   var returnVal;
   var spawn = require('child_process').spawn;
   var opts = {stdio: 'inherit'} ;
-  var javac = spawn('javac', ['-cp', ymd + '/Solution.class', '/usr/local/Java_Checker/'+ ymd +'/Solution.java'], opts);
+  var javac = spawn('javac', ['-cp', yymd + '/Solution.class', '/usr/local/Java_Checker/'+ yymd +'/Solution.java'], opts);
 
   javac.on('close', function(code) {
     const exec = require('child_process').exec;
-   	exec('java Solution totalTime', {cwd: './'+ymd}, (e, stdout, stderr)=> {
-			process.chdir(ymd);
+   	exec('java Solution totalTime', {cwd: './'+yymd}, (e, stdout, stderr)=> {
+			process.chdir(yymd);
       if (e instanceof Error) {
      	  console.error(e);
       }
@@ -145,6 +149,7 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
   console.log('default error');
+	console.log(err);
 
   // set locals, only providing error in development
   res.locals.message = err.message;
@@ -152,7 +157,8 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+	res.render('file', {'result':err});
+//  res.render('error');
 });
 
 module.exports = app;
