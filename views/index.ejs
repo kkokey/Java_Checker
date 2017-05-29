@@ -2,23 +2,18 @@
 <head>
 	<meta charset="utf-8">
 	<style>
-		div{
+		div.import, div.method, div.command{
 			font-size: 10pt;
+			border: solid 1px gray;
 			width: 650px;
 			resize: both;
     	overflow: auto;
 		}
 		div.import{
-			border: solid 1px gray;
 			height: 80px;
 		}
 		div.method{
-			border: solid 1px gray;
 			height: 380px;
-		}
-		div.commend{
-			border: solid 1px gray;
-			height: 20px;
 		}
 		div.button{
 			border: 0px;
@@ -36,7 +31,7 @@
 		Write method source
 	</div>
 	<span>- Run Command -</span>
-	<div id="command" class="commend textarea first" contenteditable=true>
+	<div id="command" class="command textarea first" contenteditable=true>
 		Write run command in main method.
 	</div>
 	<br/>
