@@ -14,5 +14,4 @@ connection.connect(function(err)){
 }
 
 
-
-exports.module.saveDb = {}
+module.exports = connection;
