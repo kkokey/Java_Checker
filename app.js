@@ -50,6 +50,7 @@ app.use('/', index);
 app.post('/file', function(req, res){
 	var importPart='', methodPart='';
   var fileName = '', source = req.body.source;
+	d = new Date();
 	yymd = d.getFullYear() + '.' + d.getMonth() + '.' + d.getDate();
 	importPart = source.split('|')[0];
 	methodPart = source.split('|')[1];
