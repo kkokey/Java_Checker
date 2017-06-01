@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 var index = require('./js/index.js');
+var dir = require('./js/makePath.js');
 
 //******************** //
 // Make Function Part
@@ -13,18 +14,6 @@ var index = require('./js/index.js');
 
 var d = new Date();
 var yymd = d.getFullYear() + '.' + d.getMonth() + '.' + d.getDate();
-
-const dir = {
-	mkdir: (x) => {
-		fs.mkdir(
-			x, 
-			[0o777],		// What's mean this? 
-			function(rs){
-				console.log('Make folder :[' + yymd +']');
-				return rs;
-		});
-	}
-}
 
 //******************** //
 // Setting express config & page path.
@@ -58,11 +47,11 @@ app.post('/file', function(req, res){
     classHeader: (x) => { return importPart + '\n' + 'public class Solution {\n' + x + '\n}'; }
   }
 
-	console.log(yymd);
-	dir.mkdir(yymd);
+	var logPath = 'log/' + yymd;
+	dir.mkdir(logPath);
 
   if(fileName === ''){
-    fileName = yymd + '/Solution.java';
+    fileName = logPath + '/Solution.java';
   }
   if(source === ''){
     source = ''
@@ -122,12 +111,12 @@ app.post('/file', function(req, res){
   var returnVal;
   var spawn = require('child_process').spawn;
   var opts = {stdio: 'inherit'} ;
-  var javac = spawn('javac', ['-cp', yymd + '/Solution.class', '/usr/local/Java_Checker/'+ yymd +'/Solution.java'], opts);
+  var javac = spawn('javac', ['-cp', logPath + '/Solution.class', '/usr/local/Java_Checker/'+ logPath +'/Solution.java'], opts);
 
   javac.on('close', function(code) {
 		console.log('close:'+yymd);
     const exec = require('child_process').exec;
-   	exec('java Solution totalTime', {cwd: './'+yymd}, (e, stdout, stderr)=> {
+   	exec('java Solution totalTime', {cwd: './'+logPath}, (e, stdout, stderr)=> {
       if (e instanceof Error) {
      	  console.error(e);
       }
