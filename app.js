@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var fs = require('fs');
 var index = require('./js/index.js');
 var dir = require('./js/makePath.js');
+var addJavaSource = require('./js/serverCommonUtil.js');
 
 //******************** //
 // Make Function Part
@@ -43,9 +44,6 @@ app.post('/file', function(req, res){
 	yymd = d.getFullYear() + '.' + d.getMonth() + '.' + d.getDate();
 	importPart = source.split('|')[0];
 	methodPart = source.split('|')[1];
-  const add = {
-    classHeader: (x) => { return importPart + '\n' + 'public class Solution {\n' + x + '\n}'; }
-  }
 
 	var logPath = 'log/' + yymd;
 	dir.mkdir(logPath);
@@ -97,7 +95,7 @@ app.post('/file', function(req, res){
     + methodPart;
   }
 
-  source = add.classHeader(source);
+  source = addJavaSource.classHeader(source, importPart);
   source = source.split('\n').join(' ');
   source = source.split('\u00a0').join(' ');
 
