@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var fs = require('fs');
 var index = require('./js/index.js');
 var dir = require('./js/makePath.js');
-var addJavaSource = require('./js/serverCommonUtil.js');
+var get = require('./js/serverCommonUtil.js');
 
 //******************** //
 // Make Function Part
@@ -21,11 +21,15 @@ var yymd = d.getFullYear() + '.' + d.getMonth() + '.' + d.getDate();
 // ********************//
 var app = express();
 
+//******************** //
 // view engine setup
+// ********************//
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs')
 
+//******************** //
 // uncomment after placing your favicon in /public
+// ********************//
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -39,8 +43,9 @@ app.use('/js', express.static(__dirname + '/js'));
 app.use('/', index);
 app.post('/file', function(req, res){
 	var importPart='', methodPart='';
-  var fileName = '', source = req.body.source;
+  var fileName='', source=req.body.source;
 	d = new Date();
+
 	yymd = d.getFullYear() + '.' + d.getMonth() + '.' + d.getDate();
 	importPart = source.split('|')[0];
 	methodPart = source.split('|')[1];
@@ -51,53 +56,8 @@ app.post('/file', function(req, res){
   if(fileName === ''){
     fileName = logPath + '/Solution.java';
   }
-  if(source === ''){
-    source = ''
-    +'public static void main(String[] args) {\n'
-    +'  totalTime();'
-    +'}\n\n'
-    +'public static long totalTime(){\n'
-  	+'	long startTime = System.currentTimeMillis();\n'
-  	+'	System.out.println(reAlignString("String size check test!"));\n'
-  	+'	long endTime   = System.currentTimeMillis();\n'
-  	+'	long totalTime = endTime - startTime;\n'
-  	+'	System.out.println(totalTime);\n'
-    +'\n'
-    +'  return totalTime;\n'
-  	+'}\n\n'
-    +'\n'
-    +'public static int getSize(String strData){\n'
-    +'  return strData.length();\n'
-    +'}\n\n'
-    +'public static String reAlignString(String strData){\n'
-    +'  int i=0, len=getSize(strData);\n'
-    +'  StringBuffer strBuf = new StringBuffer();\n'
-    +'  for(i=0; i \< len; i++){\n'
-    +'    strBuf.append(strData.substring((len-i-1), (len-i)));\n'
-    +'  }\n'
-    +'  return strBuf.toString();\n'
-    +'}\n';
-  }else{
-    source = ''
-    +'public static void main(String[] args) {\n'
-    +'  totalTime();'
-    +'}\n\n'
-    +'public static long totalTime(){\n'
-  	+'	long startTime = System.nanoTime();\n'
-    + req.body.runCommand
-  	+'	long endTime   = System.nanoTime();\n'
-  	+'	long totalTime = endTime - startTime;\n'
-  	+'	System.out.println(totalTime);\n'
-    +'\n'
-    +'  return totalTime;\n'
-  	+'}\n\n'
-    +'\n'
-    + methodPart;
-  }
 
-  source = addJavaSource.classHeader(source, importPart);
-  source = source.split('\n').join(' ');
-  source = source.split('\u00a0').join(' ');
+	source = get.completeSource(req, importPart, methodPart);
 
   var stream = fs.createWriteStream(fileName);
   stream.once('open', function(fd) {
@@ -105,8 +65,6 @@ app.post('/file', function(req, res){
   	stream.end();
   });
 
-  var javaa;
-  var returnVal;
   var spawn = require('child_process').spawn;
   var opts = {stdio: 'inherit'} ;
   var javac = spawn('javac', ['-cp', logPath + '/Solution.class', '/usr/local/Java_Checker/'+ logPath +'/Solution.java'], opts);
@@ -127,17 +85,19 @@ app.post('/file', function(req, res){
   });
 });
 
+//******************** //
 // catch 404 and forward to error handler
+// ********************//
 app.use(function(req, res, next) {
-  console.log('not find');
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
+//******************** //
 // error handler
+// ********************//
 app.use(function(err, req, res, next) {
-  console.log('default error');
 	console.log(err);
 
   // set locals, only providing error in development
