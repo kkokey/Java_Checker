@@ -6,8 +6,13 @@ const dir = {
 		  x,
 			[0o777],    // What's mean this?
 			function(rs){
-			  //console.log('Make folder :[' + yymd +']');
-				console.log(rs);
+				if(rs !== null && rs.code == 'EEXIST'){
+					console.log('Already Make folder.');
+				}else{
+          console.log('=======================');
+          console.log(rs);
+          console.log('=======================');
+				}
 				return rs;
 		});
 	}
